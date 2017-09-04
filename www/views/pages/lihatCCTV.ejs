@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="UTF-8">
+	<title>Smart AI for Ambulance</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<style type="text/css">
+		.padding-0 {
+    		padding: 0 !important;
+		}
+
+		.thumbnail {
+			margin-bottom: 0 !important ;
+		}
+		h5 { 
+		   position: absolute; 
+		   top: 0; 
+		   left: 0; 
+		   width: 100%; 
+		}
+
+		h5 span { 
+		   color: white; 
+		   font: bold 12px/15px Helvetica, Sans-Serif; 
+		   letter-spacing: -1px;  
+		   background: rgb(0, 0, 0); /* fallback color */
+		   background: rgba(0, 0, 0, 0.7);
+		   padding: 10px; 
+		}
+
+		.loading-gif {
+			position: absolute; 
+		    margin: auto;
+		    top: 0;
+		    left: 0;
+		    right: 0;
+		    bottom: 0;
+		}
+	</style>
+</head>
+<body>
+	<div class="container-fluid">
+		<div id="mainContainer" class="row"></div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
+	<script src="/stream.jquery.js" ></script>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		var StreamList;
+
+		$.ajaxSetup({async:false});
+		$.get('/getCCTVByGroupId/<%=data%>',function(data) {
+			StreamList = data;
+		});
+		$.ajaxSetup({async:true});
+
+		$(document).ready(function() {
+			for(var i = 0; i < StreamList.length; i++) {
+				var SList = StreamList[i];
+				$("#mainContainer").append('<div class="col-md-4 padding-0">'+
+				'<h5><span>Location : '+SList.nama_lokasi+'</span></h5>'+
+				'<img id="camera'+SList.id+'" class="thumbnail" style="height:400px;width: 100%; padding:0;" '+
+				'onerror="imgError(this)" onload="imgLoad(this)"><img src="/preloader.gif" class="loading-gif" id="preload_camera'+SList.id+'" style="height:25px;width:25px;" /></div>');
+				csock(SList.server,SList.ip_address,SList.port,'camera'+SList.id);
+			}
+		
+		});
+
+		function csock(server,ip,port,cameraid) {
+		    io(server+'://'+ip+':'+port+'/'+cameraid).on('data', function(data) { 
+		    	document.getElementById(cameraid).src = 'data:image/jpeg;base64,' + data; 
+		    });	
+		}
+
+		function imgLoad(e) {
+			$("#preload_"+e.getAttribute("id")).hide();
+		}
+
+		function imgError(e) {
+			$("#preload_"+e.getAttribute("id")).show();
+		}
+	</script>
+</body>
+</html>

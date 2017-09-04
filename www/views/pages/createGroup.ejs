@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Create Group</title>
+	<meta charset="UTF-8">
+	<title>NTMC Polri | Create Group</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link href="/component/select2-4.0.3/dist/css/select2.min.css" rel="stylesheet">
+
+	<style type="text/css">
+		.center_div{
+			margin: 0 auto;
+			width:80% /* value of your choice which suits your alignment */
+		}
+	</style>
+</head>
+<body>
+	<div class="container center_div">
+		<div class="row">
+			<div class="col-xs-12">
+				<h2>Create Group</h2>
+				<hr />
+				<form action="/saveGroup" method="post">
+					<div class="form-group">
+						<label for="groupName">Group Name :</label>
+						<input id="groupName" type="text" name="groupName" class="form-control" style="max-width:400px;">
+					</div>
+					<div class="form-group">
+						<label for="selectCCTV">Select CCTV :</label>
+						<select id="selectCCTV" name="selectCCTV" multiple="multiple" class="form-control js-example-responsive" >
+						</select>
+					</div>
+					<a href="/listGroup" class="btn btn-sm btn-primary">Back</a>
+					<button type="submit" class="btn btn-default btn-sm">Save Group</button>
+					
+				</form> 
+			</div>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" ></script>
+	<script src="/component/select2-4.0.3/dist/js/select2.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() { 
+			var selectCCTV = $('#selectCCTV');
+			$.get("/getAllCCTV", function(data) {
+				$.each(data, function(i,v) {
+					selectCCTV.append($('<option>', {
+					    value: v.id,
+					    text: v.nama_lokasi
+					})).promise().done(function() {
+						selectCCTV.select2();
+					});
+				});
+			});
+		});
+	</script>
+</body>
+</html>
