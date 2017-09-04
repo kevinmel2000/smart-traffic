@@ -190,9 +190,9 @@ function log(d) {
 
 // Provide feedback
 // predict the contents of an image by passing in a url
-clarifai.models.predict(Clarifai.GENERAL_MODEL, 'http://cdn2.tstatic.net/bogor/foto/bank/images/ambulans_20151229_160551.jpg').then(
+clarifai.models.predict('ambulance', 'https://www.finansialku.com/wp-content/uploads/2015/06/Perencanaan-Keuangan-dan-Siklus-Hidup-Manusia-Keluarga-Pra-Pensiun-Perencana-Keuangan-Independen-Finansialku.jpg').then(
   function(response) {
-    console.log(response.outputs);
+    console.log(response.rawData.outputs[0].data);
   },
   function(err) {
     console.error(err);
