@@ -1,4 +1,5 @@
 /**
+ * npm install request
  * npm install clarifai
  * npm install rtsp-ffmpeg
  * npm install numeral
@@ -51,7 +52,8 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 //------------------------------------------------------------------/
 
 const clarifai = new Clarifai.App({
- apiKey: 'af3fa551cb3e4dc594578017abf25588' // this app using api-key from fajarrdp@gmail.com
+// apiKey: 'af3fa551cb3e4dc594578017abf25588' // this app using api-key from fajarrdp@gmail.com
+  apiKey: 'f2a1ea0dc1f2439885f272acb8cc1767' // this app using api-key from fajarrdp@gmail.com
 });
 
 // Prediction on general model using video API
@@ -62,10 +64,13 @@ const clarifai = new Clarifai.App({
 
 var threshold = 0.92824214; /* limit floor */
 // callback(value (float),status(boolean));
+// AI model from clarifai
+var model = "vehicles";
+
 function b64Clarifai(base64Image,callback) {
 	var result = 0;
 
-	clarifai.models.predict('ambulance', base64Image).then(
+	clarifai.models.predict(model, base64Image).then(
 	  function(response) {
 	  	var arr = response.rawData.outputs[0].data.concepts;
 	  	console.log(arr);
@@ -94,20 +99,21 @@ function b64Clarifai(base64Image,callback) {
 	return result;
 }
 
-// use for scanning by url
-function scanningByImageUrl(url) {
-	request.get(url, function (error, response, body) {
-	    if (!error && response.statusCode == 200) {
-	        var data = new Buffer(body).toString('base64');
-	        b64Clarifai(data,function(value,status) {
-	        	console.log("value is : "+value);
-	        });
-	    }
-	});
-}
+// // use for scanning by url
+// function scanningByImageUrl(url) {
+// 	request.get(url, function (error, response, body) {
+// 	    if (!error && response.statusCode == 200) {
+// 	        var data = new Buffer(body).toString('base64');
+// 	        b64Clarifai(data,function(value,status) {
+// 	        	console.log("value is : "+value);
+// 	        });
+// 	    }
+// 	});
+// }
 
-/* debug test */
-scanningByImageUrl('https://fixyourcoffee.files.wordpress.com/2008/03/photo_8861_200711142.jpg');	
+// /* debug test */
+// //scanningByImageUrl('https://fixyourcoffee.files.wordpress.com/2008/03/photo_8861_200711142.jpg');	
+// scanningByImageUrl('https://i.ytimg.com/vi/prnlf4hqKzU/hqdefault.jpg');	
 
 // INIT Camera Sources
 // create rtsp source when init 
@@ -135,7 +141,13 @@ con.query("SELECT CONCAT('camera',id) as camera, rtsp as source FROM cctv_source
 				 	var pipeStream = function(data) {
 				 	  var b64str = data.toString('base64');
 				 	  wsocket.emit('data', b64str);
-				 	  //b64Clarifai(b64str);
+
+				 	  // scan cctv image motion
+				 	  b64Clarifai(b64str,function(value,status) {
+	        	            console.log("value is : "+value);
+
+	        	            // python IO
+	                  });
 
 				 	  // if using base64 bytes
 				 	  //var buf = new Buffer(b64str, 'base64');
