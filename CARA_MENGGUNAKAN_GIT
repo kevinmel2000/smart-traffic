@@ -1,0 +1,104 @@
+CARA MENGGUNAKAN GIT
+
+Pertama-tama yang harus dilakukan adalah mendownload software git yang ada di situs https://git-scm.com/downloads , download sesuai sistem operasi masing-masing.
+
+Setelah didownload lalu lakukan proses instalasi. Lakukan klik next-next saja. Setelah selesai buka command prompt (windows) / terminal (linux). Path(windows) / ROOT (Linux) harus difolder proyek. Seperti berikut ini
+
+D:/project/hris_bkn
+
+Jadi command prompt harus di posisi seperti dibawah ini,
+---------------------------------------------------------------------
+| CMD                                                               |
+---------------------------------------------------------------------
+| D:\project\hris_bkn >                                             |
+|                                                                   |
+---------------------------------------------------------------------
+
+lalu lakukan perintah seperti berikut,
+
+----------------------------------------------------------------------------
+| CMD                                                                      |
+----------------------------------------------------------------------------
+| D:\project\hris_bkn > git clone https://gitlab.com/fajarrdp/hris_bkn.git |
+|                                                                          |
+----------------------------------------------------------------------------
+
+git clone berfungsi untuk menyalin proyek yang ada di gitlab dan diletakkan pada path tersebut
+Lalu mulai coding, dan jika sudah selesai atau modul sekiranya sudah stabil silahkan lakukan update ke gitlab
+
+Seperti dibawah ini,
+----------------------------------------------------------------------------
+| CMD                                                                      |
+----------------------------------------------------------------------------
+| D:\project\hris_bkn > git add -A                                         |
+|                                                                          |
+----------------------------------------------------------------------------
+
+Kode diatas maksudnya adalah menambahkan file-file apa saja yang baru pada proyek tersebut
+dan bukan menambahkan file keseluruhan kedalam repository git lokal. 
+
+Setelah itu lakukan perintah lagi untuk membuat catatan dan commit pada file 
+yang telah di tambahkan atau di edit seperti dibawah ini,
+----------------------------------------------------------------------------
+| CMD                                                                      |
+----------------------------------------------------------------------------
+| D:\project\hris_bkn > git commit -m "Penambahan Field"                   |
+|                                                                          |
+----------------------------------------------------------------------------
+
+Lalu lakukan "PUSH" ke server repository gitlab. Sebelum melakukan itu sebaiknya, 
+lakukan perintah seperti berikut ini,
+----------------------------------------------------------------------------
+| CMD                                                                      |
+----------------------------------------------------------------------------
+| D:\project\hris_bkn > git pull origin master                             |
+|                                                                          |
+----------------------------------------------------------------------------
+
+Maksud dari perintah diatas adalah agar repository git yang berada dilokal bisa terupdate.
+Jika tidak dilakukan cara seperti diatas maka proses "PUSH" keserver akan gagal karena tidak sinkron.
+
+CATATAN :
+HARAP DIPERHATIKAN !!!!
+
+jika terjadi error, setelah selesai melakukan "PULL" dari server gitlab, periksa dengan
+cara seperti dibawah ini.
+----------------------------------------------------------------------------
+| CMD                                                                      |
+----------------------------------------------------------------------------
+| D:\project\hris_bkn > git status                                         |
+|                                                                          |
+----------------------------------------------------------------------------
+
+Jika terdapat error maka di cmd git akan muncul file yang harus di edit terlebih dahulu. 
+Dan biasanya errornya seperti dibawah ini.
+
+ ___________________________________________________________________________
+/ sublimetext editor                                                        \
+-----------------------------------------------------------------------------
+| hibernate.cfg.xml      x |    File.java           x |                     |
+-----------------------------------------------------------------------------
+
+<<<<<<<<<<<<< HEAD
+
+DISINI BERISI KODE PROGRAM LAMA
+
+>>>>>>>>>>>>> COMMIT message 
+
+DISINI BERIKUT KODE PROGRAM BARU
+
+-----------------------------------------------------------------------------
+
+Lakukan pembenahan sesuai permasalahan yang ada di laptop masing-masing. Ini biasanya berbeda kasusnya.
+Bisa jadi password / username database berbeda di tiap-tiap laptop. Hanya saja table dan isi-isinya sama.
+
+Dan jika sudah tidak ada error lagi dan module sekiranya sudah OK maka lakukan "PUSH" ke server gitlab 
+dengan cara berikut ini,
+----------------------------------------------------------------------------
+| CMD                                                                      |
+----------------------------------------------------------------------------
+| D:\project\hris_bkn > git push origin master                             |
+|                                                                          |
+----------------------------------------------------------------------------
+
+
