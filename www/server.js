@@ -10,6 +10,7 @@
  var io = require('socket.io')(server);
  var rtsp = require('rtsp-ffmpeg');
  var numeral = require('numeral');
+ var request = require('request').defaults({ encoding: null }); 
 
  // set the view engine to ejs
 app.set('view engine', 'ejs');
@@ -42,7 +43,7 @@ var bodyParser = require('body-parser')
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
-})); 
+}));
 
 //------------------------------------------------------------------/
 // AI using Clarifai
@@ -59,7 +60,9 @@ const clarifai = new Clarifai.App({
 // predict the contents of an image by passing in a url
 
 var threshold = 0.92824214; /* limit floor */
-function b64Clarifai(base64Image) {
+// callback(value (float),status(boolean));
+function b64Clarifai(base64Image,callback) {
+	var result = 0;
 	clarifai.models.predict('ambulance', base64Image).then(
 	  function(response) {
 	  	var arr = response.rawData.outputs[0].data.concepts;
@@ -70,10 +73,13 @@ function b64Clarifai(base64Image) {
 	  			// search ambulance only
 	 	  		if(arr[i].id == 'ambulance') {
 		  			var val = numeral(arr[i].value).value();
+		  			result = val;
 		  			if(val > threshold && val < 2) {
-		  				console.log("Ambulance detected!");
+		  				console.log("Ambulance detected!"); // debug
+		  				callback(val,true); // do something
 		  			} else {
-		  				console.log("Ambulance not detected!");
+		  				callback(val,false); // do something
+		  				console.log("Ambulance not detected!"); // debug
 		  			}
 		  		}
 	  		}
@@ -83,7 +89,22 @@ function b64Clarifai(base64Image) {
 	    console.error(err);
 	  }
 	);
+	return result;
 }
+
+// use for scanning by url
+function scanningByImageUrl(url) {
+	request.get(url, function (error, response, body) {
+	    if (!error && response.statusCode == 200) {
+	        var data = new Buffer(body).toString('base64');
+	        b64Clarifai(data,function(value,status) {
+	        	console.log("value is : "+value);
+	        });
+	    }
+	});
+}
+
+scanningByImageUrl('https://fixyourcoffee.files.wordpress.com/2008/03/photo_8861_200711142.jpg');	
 
 // INIT Camera Sources
 // create rtsp source when init 
@@ -216,31 +237,3 @@ app.get('/getCCTVByGroupId/:id',function(req, res) {
 		res.send(result);
 	});
 });
-
-var request = require('request').defaults({ encoding: null });
-
-request.get('https://fixyourcoffee.files.wordpress.com/2008/03/photo_8861_200711142.jpg', function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-        var data = new Buffer(body).toString('base64');
-        console.log("foto1");
-        b64Clarifai(data);
-    }
-});
-
-// request.get('http://cdn2.tstatic.net/bogor/foto/bank/images/ambulans_20151229_160551.jpg', function (error, response, body) {
-//     if (!error && response.statusCode == 200) {
-//         var data = new Buffer(body).toString('base64');
-//         console.log("foto2");
-//         b64Clarifai(data);
-//     }
-// });
-	
-// request.get('https://i.ytimg.com/vi/TmLIa1619Cc/hqdefault.jpg', function (error, response, body) {
-//     if (!error && response.statusCode == 200) {
-//         var data = new Buffer(body).toString('base64');
-//         console.log("foto3");
-//         b64Clarifai(data);
-//     }
-// });
-
-
