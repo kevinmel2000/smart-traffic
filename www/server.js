@@ -1,6 +1,7 @@
 /**
  * npm install clarifai
  * npm install rtsp-ffmpeg
+ * npm install numeral
  */
  const Clarifai = require('clarifai');
  var express = require('express');
@@ -63,6 +64,7 @@ var threshold = 0.92824214; /* limit floor */
 // callback(value (float),status(boolean));
 function b64Clarifai(base64Image,callback) {
 	var result = 0;
+
 	clarifai.models.predict('ambulance', base64Image).then(
 	  function(response) {
 	  	var arr = response.rawData.outputs[0].data.concepts;
@@ -104,6 +106,7 @@ function scanningByImageUrl(url) {
 	});
 }
 
+/* debug test */
 scanningByImageUrl('https://fixyourcoffee.files.wordpress.com/2008/03/photo_8861_200711142.jpg');	
 
 // INIT Camera Sources
