@@ -9,6 +9,7 @@
  var server = require('http').Server(app);
  var io = require('socket.io')(server);
  var rtsp = require('rtsp-ffmpeg');
+ var numeral = require('numeral');
 
  // set the view engine to ejs
 app.set('view engine', 'ejs');
@@ -43,6 +44,47 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 })); 
 
+//------------------------------------------------------------------/
+// AI using Clarifai
+//------------------------------------------------------------------/
+
+const clarifai = new Clarifai.App({
+ apiKey: 'af3fa551cb3e4dc594578017abf25588' // this app using api-key from fajarrdp@gmail.com
+});
+
+// Prediction on general model using video API
+//clarifai.models.predict(Clarifai.GENERAL_MODEL, 'https://samples.clarifai.com/3o6gb3kkXfLvdKEZs4.gif', {video: true}).then(log).catch(log);
+
+// Provide feedback
+// predict the contents of an image by passing in a url
+
+var threshold = 0.92824214; /* limit floor */
+function b64Clarifai(base64Image) {
+	clarifai.models.predict('ambulance', base64Image).then(
+	  function(response) {
+	  	var arr = response.rawData.outputs[0].data.concepts;
+	  	console.log(arr);
+	  	if(arr instanceof Array) {
+	  		// iterate
+	  		for(var i = 0; i < arr.length; i++) {
+	  			// search ambulance only
+	 	  		if(arr[i].id == 'ambulance') {
+		  			var val = numeral(arr[i].value).value();
+		  			if(val > threshold && val < 2) {
+		  				console.log("Ambulance detected!");
+		  			} else {
+		  				console.log("Ambulance not detected!");
+		  			}
+		  		}
+	  		}
+	  	}
+	  },
+	  function(err) {
+	    console.error(err);
+	  }
+	);
+}
+
 // INIT Camera Sources
 // create rtsp source when init 
 con.query("SELECT CONCAT('camera',id) as camera, rtsp as source FROM cctv_source", function (err, _result, fields) {
@@ -67,7 +109,13 @@ con.query("SELECT CONCAT('camera',id) as camera, rtsp as source FROM cctv_source
 				// example /camera[n]
 				io.of("/"+uri.camera).on('connection', function(wsocket) {
 				 	var pipeStream = function(data) {
-				 	  wsocket.emit('data', data.toString('base64'));
+				 	  var b64str = data.toString('base64');
+				 	  wsocket.emit('data', b64str);
+				 	  //b64Clarifai(b64str);
+
+				 	  // if using base64 bytes
+				 	  //var buf = new Buffer(b64str, 'base64');
+				 	  //console.log(buf);
 				 	};
 				 	result.stream.on('data', pipeStream);
 				 	wsocket.on('disconnect', function() {
@@ -169,32 +217,30 @@ app.get('/getCCTVByGroupId/:id',function(req, res) {
 	});
 });
 
-//------------------------------------------------------------------/
-// AI
-//------------------------------------------------------------------/
+var request = require('request').defaults({ encoding: null });
 
-const clarifai = new Clarifai.App({
- apiKey: 'af3fa551cb3e4dc594578017abf25588'
+request.get('https://fixyourcoffee.files.wordpress.com/2008/03/photo_8861_200711142.jpg', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+        var data = new Buffer(body).toString('base64');
+        console.log("foto1");
+        b64Clarifai(data);
+    }
 });
 
-function log(d) {
-  try {
-    console.log(JSON.stringify(d, null, 2));
-  } catch (e) {
-    console.log(d);
-  }
-}
+// request.get('http://cdn2.tstatic.net/bogor/foto/bank/images/ambulans_20151229_160551.jpg', function (error, response, body) {
+//     if (!error && response.statusCode == 200) {
+//         var data = new Buffer(body).toString('base64');
+//         console.log("foto2");
+//         b64Clarifai(data);
+//     }
+// });
+	
+// request.get('https://i.ytimg.com/vi/TmLIa1619Cc/hqdefault.jpg', function (error, response, body) {
+//     if (!error && response.statusCode == 200) {
+//         var data = new Buffer(body).toString('base64');
+//         console.log("foto3");
+//         b64Clarifai(data);
+//     }
+// });
 
-// Prediction on general model using video API
-//clarifai.models.predict(Clarifai.GENERAL_MODEL, 'https://samples.clarifai.com/3o6gb3kkXfLvdKEZs4.gif', {video: true}).then(log).catch(log);
 
-// Provide feedback
-// predict the contents of an image by passing in a url
-clarifai.models.predict('ambulance', 'https://www.finansialku.com/wp-content/uploads/2015/06/Perencanaan-Keuangan-dan-Siklus-Hidup-Manusia-Keluarga-Pra-Pensiun-Perencana-Keuangan-Independen-Finansialku.jpg').then(
-  function(response) {
-    console.log(response.rawData.outputs[0].data);
-  },
-  function(err) {
-    console.error(err);
-  }
-);
