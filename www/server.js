@@ -13,6 +13,28 @@
  var rtsp = require('rtsp-ffmpeg');
  var numeral = require('numeral');
  var request = require('request').defaults({ encoding: null }); 
+ 
+ /* setup api-jakarta */
+ var urlRequest =  'http://api.jakarta.go.id/v1/cctvbalitower/1?format=geojson';
+ var token = 'rNY+ljx6+8xCtfq8+1qFzrtLlJFFjE+MPajVNgEgA2enVX3pFoegTmqPhYSfMgcB';
+ var options = {
+	url: urlRequest,
+	headers: {
+	   'Authorization':token
+	}
+ };
+ 
+ /* function api-jakarta */
+function callApiJakarta() {
+	request(options, function(error, response, body){
+	  if (!error && response.statusCode == 200) {
+	  	console.log(response.body.toString());
+	  }	
+	});
+}
+
+/* test call api jakarta */
+callApiJakarta();
 
  // set the view engine to ejs
 app.set('view engine', 'ejs');
